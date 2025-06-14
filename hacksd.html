@@ -1,0 +1,100 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    * { padding: 0; margin: 0; overflow-x: hidden; }
+    body { background: #031d38; color: #e7e7e7; font-family: 'Poppins', sans-serif; }
+    #loader { display: flex; justify-content: center; height: 75vh; align-items: center; }
+    .loader {
+        width: fit-content;
+        font-weight: bold;
+        font-family: monospace;
+        font-size: 30px;
+        background: radial-gradient(circle closest-side,#fff 94%,#0000) right/calc(200% - 1em) 100%;
+        animation: l24 1s infinite alternate linear;
+    }
+    .loader::before {
+        content: "Loading...";
+        line-height: 1.4em;
+        color: #0000;
+        background: inherit;
+        background-image: radial-gradient(circle closest-side,#000 94%,#fff);
+        -webkit-background-clip:text;
+        background-clip:text
+    }
+    @keyframes l24{
+        100%{background-position: left}
+    }
+    .header { display: flex; align-items: center; gap: 10px; padding: 10px; font-family: "Henny Penny", serif; background: #00274f; box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px, rgba(0, 0, 0, 0.07) 0px 2px 4px, rgba(0, 0, 0, 0.07) 0px 4px 8px, rgba(0, 0, 0, 0.07) 0px 8px 16px, rgba(0, 0, 0, 0.07) 0px 16px 32px, rgba(0, 0, 0, 0.07) 0px 32px 64px; }
+    .header hr { flex-grow: 1; border: none; border-top: 2px solid #fff; }
+    .header img { width: 45px; border-radius: 125px; }
+    .customer-text { display: flex; align-items: center; gap: 10px; margin: 10px; }
+    .customer-text hr { flex-grow: 1; border: none; border-top: 2px solid #fff; }
+    .frames { display: flex; flex-direction: row; max-width: 100%; overflow-x: auto; gap: 10px; padding: 10px; scroll-behavior: smooth; }
+    .frames iframe, .frames img { flex-shrink: 0; max-width: 450px; height: auto; }
+    .text { margin: 10px; }
+    .text > h2 , p { margin: 0px; }
+    .text > h2 { font-size: 23px; font-weight: 500; }
+    .des { font-size: 18px; font-weight: 300; }
+    .prince { font-size: 20px; font-weight: 600; }
+    button { padding: 8px; margin: 10px 0px 0px 0px; width: 130px; border: none; background-color: #8f1b94; color: #fff; font-family: "Poppins" }
+</style>
+
+<div class="header">
+    <hr>
+    <img src="https://i.ibb.co/4M71LZN/icon.png">
+    <h2>Krish Gaming</h2>
+    <hr>
+</div>
+<div id="details-container"></div>
+<div id="loader" style="display: none;">
+    <div class="loader"></div>
+</div>
+
+<script>
+    const loader = document.getElementById('loader');
+    const detailsContainer = document.getElementById('details-container');
+
+    loader.style.display = 'flex';
+
+    fetch('https://script.google.com/macros/s/AKfycbxjZ1jiLMiaO4MC6gkCtTIDdvSMdXubk5uZucYjB4oS0z4gd4ImvVJK4_HjPS6TIdZa/exec', {
+        method: 'POST'
+    })
+        .then(response => response.json())
+        .then(data => {
+            loader.style.display = 'none';
+            const currentIndex = localStorage.getItem('currentIndex');
+            const row = data[currentIndex];
+            const html = `
+                <div class="frames">
+                    <iframe src="${row[2]}"></iframe>
+                    <img src="${row[3]}">
+                    <img src="${row[4]}">
+                </div>
+                <div class="text">
+                    <h2>${row[0]}</h2>
+                    <p class="des">${row[1]}</p>
+                    <p class="prince">Price: ₹${row[5]}</p>
+                    <button id="buy-now-button">Buy Now</button>
+                </div>
+            `;
+            detailsContainer.innerHTML = html;
+
+            document.getElementById('buy-now-button').addEventListener('click', () => {
+                const price = row[5];
+                const upiId = '9079078718@pthdfc';
+                const name = 'Krish Gaming';
+                const transactionNote = 'Purchase from Krish Gaming';
+                const currency = 'INR';
+                const upiURL = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&mc=&tid=&tr=&tn=${encodeURIComponent(transactionNote)}&am=${encodeURIComponent(price)}&cu=${encodeURIComponent(currency)}`;
+                window.location.href = upiURL;
+            });
+        })
+        .catch(error => {
+            loader.style.display = 'none';
+            console.error('Error fetching data:', error);
+        });
+</script>
